@@ -11,8 +11,10 @@ import scipy.stats as stats
 from scipy.stats import f_oneway
 from statsmodels.stats.multitest import multipletests
 
+# file read path 
 file_read_path = r'C:\Users\jymbc\Desktop\python files for SMAD\SMAD_online\data'
 
+# read raw protein files 
 df_lfq = pd.read_csv(f'{file_read_path}/all_proteins_after_SSnormalization.csv',index_col=0)
 
 
@@ -105,6 +107,7 @@ def standardscaler_row(df):
     dfpro_stdbyrow = pd.DataFrame(dfdf_pro.T, index=df.index, columns=df.columns)
     return dfpro_stdbyrow
 
+# set four treatments 
 treatment=['Con']*6 + ['LPS']*6 + ['IL_4']*6 + ['IRD']*6
 
 def getdf(protein_name = '1/sp|B2RXS4|PLXB2_MOUSE',df = df_lfq):
@@ -138,9 +141,9 @@ def plot_interactive_scatter_box_protein(protein_name='1/sp|B2RXS4|PLXB2_MOUSE',
     )
     return fig
 
+#  read significantly dysregulated metabolites
 
 df_meta_ori = pd.read_csv(f'{file_read_path}/metabolome_dysregu_sig_macro_withnames.csv',index_col=0)
-
 df_meta = df_meta_ori.iloc[:,:-1]
 
 def get_medf(metabolite_name = 'His-Pro ',df = df_meta):
@@ -148,7 +151,6 @@ def get_medf(metabolite_name = 'His-Pro ',df = df_meta):
     df_metabolite_pro['treatment'] = treatment
     df_metabolite_pro
     return(df_metabolite_pro)
-
 
 def plot_interactive_scatter_box_metabolite(metabolite_name='His-Pro ', dfdf=df_meta):
     df = get_medf(metabolite_name, df=dfdf)
@@ -167,7 +169,8 @@ def plot_interactive_scatter_box_metabolite(metabolite_name='His-Pro ', dfdf=df_
         legend={'font': {'size': 14}}
     )
     return fig
-
+    
+# read significantly dysregulated multiome dataset
 df_mean_multi_clustered = pd.read_csv(f'{file_read_path}/df_multi_macrophages_mean_with6clusters.csv',index_col=0)
 
 def get_Kmeans(df, molecular_name):
@@ -197,8 +200,7 @@ def select_df_of_same_cluster(df, molecular_name):
         print(f"An error occurred: {e}")
         return pd.DataFrame()
 
-select_df_of_same_cluster(df_mean_multi_clustered, '1/sp|B2RXS4|PLXB2_MOUSE')
-
+# select_df_of_same_cluster(df_mean_multi_clustered, '1/sp|B2RXS4|PLXB2_MOUSE')
 
 def plot_corr_heatmap_selected_molecules(molecular_name):
     if molecular_name is not None:
@@ -285,11 +287,10 @@ def extract_unique_gene_names(gene_list):
 
     return result_genes
 
+# get gene to pathway reflection
 dfdf = df_mean_multi_clustered.copy()
 dfdf.index = extract_unique_gene_names(df_mean_multi_clustered.index)
-
 gene_value_dict = dfdf.iloc[:,:4].to_dict(orient='index')
-
 meta_gene = dfdf.iloc[-73:,:]
 # list(meta_gene[meta_gene['kmeans']==0].index)
 
@@ -298,12 +299,12 @@ import plotly.graph_objs as go
 import ast
 
 def plot_network_figure(df, gene_value_dict):
-    # 创建一个空的无向图
+    # creat a nx graph
     G = nx.Graph()
-    # 添加通路节点
+    # add nodes
     pathways = df['Term'].tolist()
     G.add_nodes_from(pathways, type='pathway')
-    # 添加基因节点和边
+    # add nodes and edge 
     for _, row in df.iterrows():
         pathway = row['Term']
         genes = row['Genes']
@@ -411,7 +412,7 @@ def load_cluster_data(file_path=f'{file_read_path}\Protein_KEGG_enriched_results
 
     return select_out_df
 
-#
+# test files 
 # select_df = load_cluster_data(file_path = f'{file_read_path}\Protein_KEGG_enriched_results_clustered_Macrophage.xlsx',
 #                       cluster_number = get_Kmeans(df_mean_multi_clustered, '1/sp|O08529|CAN2_MOUSE'))
 #
